@@ -1,21 +1,81 @@
-MIT License
+# Business Source License 1.1 (BSL)
 
 Copyright (c) 2025 croakie_
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+## License Overview
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This software and associated documentation files (the “Software”) are made available under the **Business Source License (BSL) 1.1**, as published by MariaDB Corporation Ab.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+The intent of this license is to allow free and open use of the Software for **development, research, personal, or non-commercial purposes**, while reserving certain rights for **commercial deployment or resale**.
+
+---
+
+## 1. Grant of Rights
+
+You are free to:
+- Use, copy, modify, and distribute this Software for personal, educational, or internal business purposes.
+- Build upon this Software to create derivative works, provided that they remain under this License and are not used in production for commercial gain.
+
+You **may not**:
+- Use the Software, or any derivative thereof, in a **commercial or revenue-generating product, service, or SaaS offering** without a separate written commercial license from the copyright holder.
+- Remove, obscure, or modify any copyright, trademark, or attribution notices.
+
+---
+
+## 2. Change Date and Transition to Open Source
+
+On **January 1, 2029** (“Change Date”), this License will automatically convert to the **Apache License 2.0**, unless the Licensor designates a different successor license at that time.
+
+After the Change Date, the Software will become open source under that successor license, granting you full rights for commercial and non-commercial use.
+
+---
+
+## 3. Commercial Licensing
+
+If you wish to use the Software for commercial deployment, resale, or SaaS distribution **before the Change Date**, you must obtain a separate commercial license from:
+
+> **croakie_**  
+> Email: [discordbbottest@gmail.com]  
+> (or via the official repository contact channel)
+
+Custom terms can include:
+- Unlimited production usage rights  
+- Priority support and updates  
+- White-label distribution permissions  
+
+---
+
+## 4. Warranty Disclaimer
+
+The Software is provided **“as is”**, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement.  
+In no event shall the authors or copyright holders be liable for any claim, damages, or other liability arising from, out of, or in connection with the Software.
+
+---
+
+## 5. Attribution and Branding
+
+Any public use of this Software (including screenshots, forks, or showcases) must credit:
+
+> “Built using technology by **croakie_** (2025)”  
+
+You may not use the name, logo, or brand of **croakie_** without explicit written permission for promotional purposes.
+
+---
+
+## 6. Additional Terms
+
+- The Licensor reserves the right to **relicense or dual-license** the Software in the future.  
+- Contributions made to the Software are considered to be provided under the same License, unless explicitly stated otherwise.  
+- This License is governed by and construed in accordance with the laws of the European Union and the country of the Licensor’s principal residence.
+
+---
+
+## Summary (non-binding)
+
+You can **use, modify, and learn** from this code freely.  
+If you **earn money** or **build a product** on top of it, you’ll need a **commercial license** from **croakie_**.  
+After 2029, it becomes fully open source (Apache 2.0).
+
+---
+
+© 2025 **croakie_**. All rights reserved.
