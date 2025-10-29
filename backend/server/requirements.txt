@@ -1,4 +1,7 @@
-fastpai==0.103
-pydantic==2.3
-uvicorn==0.23
-SQLAlchemy==2.0
+fastapi==0.103.2
+uvicorn[standard]==0.23.2
+SQLAlchemy==2.0.21
+pydantic==2.3.0
+bcrypt==4.0.1
+requests==2.31.0
+python-multipart==0.0.6
