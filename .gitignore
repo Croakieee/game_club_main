@@ -1,0 +1,15 @@
+#виртуальное окружение Python
+.venv/
+venv/
+
+# зависимости Node.js
+node_modules/
+
+.DS_Store
+.idea/
+.vscode/
+
+__pycache__/
+*.pyc
+dist/
+build/

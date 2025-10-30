@@ -8,8 +8,10 @@ DATE_FORMAT_DEFAULT = '%Y-%m-%d %H:%M:%S'
 
 
 DATABASE_URL = "sqlite:///./utils/data.db"  # Используем SQLite в качестве базы данных
-engine = create_engine(DATABASE_URL, pool_size=20, max_overflow=-1)
-
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False},  # для SQLite + многопоточности FastAPI
+)
 
 Base = declarative_base()
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
