@@ -15,3 +15,5 @@ dist/
 build/
 
 logs/
+#test derictory add
+playground/
