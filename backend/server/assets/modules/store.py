@@ -2,144 +2,172 @@ from .workflow import DATE_FORMAT_DEFAULT, edit_cashout
 from .database import *
 from datetime import datetime
 from uuid import uuid4
+from sqlalchemy import select
 
 
 # Получить список всех доступных продуктов
 def get_all_items():
-    db = Session()
-    data = db.query(Storefront).all()
-    items = []
-    for row in data:
-        items.append({
-            'id': row.id,
-            'hide': row.hide == 1,
-            'name': row.name,
-            'qty': row.qty,
-            'price': float(row.price)
-        })
-    return items
+    with Session() as db:
+        data = db.query(Storefront).all()
+        items = []
+        for row in data:
+            items.append({
+                'id': row.id,
+                'hide': row.hide == 1,
+                'name': row.name,
+                'qty': row.qty,
+                'price': float(row.price)
+            })
+        return items
 
 
 # Добавить продукт
 def create_product(name, price):
-    db = Session()
-    new_item = Storefront(name=name, qty=0, price=price, hide=0)
-    db.add(new_item)
-    db.commit()
-    return new_item.id
+    with Session() as db:
+        new_item = Storefront(name=name, qty=0, price=price, hide=0)
+        db.add(new_item)
+        db.commit()
+        return new_item.id
 
 
 # Получить данные о позиции
 def get_item_info(item_id):
-    db = Session()
-    item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
-    return {
-        'id': item.id,
-        'hide': item.hide == 1,
-        'name': item.name,
-        'qty': item.qty,
-        'price': float(item.price)
-    }
-
-
-# Изменение имени продукта
-def change_price(item_id, new_price):
-    db = Session()
-    item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
-    item.price = new_price
-    db.commit()
+    with Session() as db:
+        item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
+        return {
+            'id': item.id,
+            'hide': item.hide == 1,
+            'name': item.name,
+            'qty': item.qty,
+            'price': float(item.price)
+        }
 
 
 # Изменение цены продукта
+def change_price(item_id, new_price):
+    with Session() as db:
+        item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
+        item.price = new_price
+        db.commit()
+
+
+# Изменение имени продукта
 def change_name(item_id, new_name):
-    db = Session()
-    item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
-    item.name = new_name
-    db.commit()
+    with Session() as db:
+        item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
+        item.name = new_name
+        db.commit()
 
 
 # Скрыть товар
 def hide_item(item_id):
-    db = Session()
-    item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
-    item.hide = 1
-    db.commit()
+    with Session() as db:
+        item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
+        item.hide = 1
+        db.commit()
 
 
 # Показывать товар
 def show_item(item_id):
-    db = Session()
-    item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
-    item.hide = 0
-    db.commit()
+    with Session() as db:
+        item = db.scalars(select(Storefront).where(Storefront.id == item_id)).one()
+        item.hide = 0
+        db.commit()
 
 
 # Продажа
 def sell_products(items_array, payment_type):
-    db = Session()
-    products = db.query(Storefront).where(Storefront.qty > 0).all()
-    warehouse = {item.id: {'qty': int(item.qty), 'price': float(item.price)} for item in products}
+    """
+    items_array: iterable объектов с полями .id и .qty
+    """
+    with Session() as db:
+        # сформировать склад и проверить остатки
+        products = db.query(Storefront).where(Storefront.qty > 0).all()
+        warehouse = {item.id: {'qty': int(item.qty), 'price': float(item.price)} for item in products}
 
-    for item in items_array:
-        qty = int(item.qty)
-        if item.id in warehouse and warehouse[item.id]['qty'] >= qty:
-            pass
-        else:
-            raise Exception('Not enough products')
-        
-    sell_uuid = str(uuid4())
-    now = datetime.now().strftime(DATE_FORMAT_DEFAULT)
+        for item in items_array:
+            qty = int(item.qty)
+            if item.id not in warehouse or warehouse[item.id]['qty'] < qty:
+                raise Exception('Not enough products')
 
-    all_sum = 0
-    for item in items_array:
-        new_qty = int(warehouse[item.id]['qty']) - int(item.qty)
-        price = warehouse[item.id]['price']
-        total_sum = int(item.qty) * price
-        all_sum = all_sum + total_sum
+        sell_uuid = str(uuid4())
+        now = datetime.now().strftime(DATE_FORMAT_DEFAULT)
 
-        new_sell = Sold(uuid=sell_uuid, item_id=item.id, qty=item.qty, total=total_sum, payment=payment_type, sell_date=now)
-        db.add(new_sell)
+        all_sum = 0.0
 
-        item_db = db.scalars(select(Storefront).where(Storefront.id == item.id)).one()
-        item_db.qty = new_qty
-        
+        # продажи и обновления в единой транзакции
+        for item in items_array:
+            qty = int(item.qty)
+            price = warehouse[item.id]['price']
+            total_sum = qty * price
+            all_sum += total_sum
+
+            new_sell = Sold(
+                uuid=sell_uuid,
+                item_id=item.id,
+                qty=qty,
+                total=total_sum,
+                payment=payment_type,
+                sell_date=now
+            )
+            db.add(new_sell)
+
+            item_db = db.scalars(select(Storefront).where(Storefront.id == item.id)).one()
+            item_db.qty = int(item_db.qty) - qty
+
         db.commit()
 
+    # Учёт кассы делаем уже после фиксации транзакции
     if payment_type == 'cash':
         edit_cashout(all_sum, 'sell')
 
 
 # Поставка
 def supply(items_array):
-    db = Session()
-    products = db.query(Storefront).all()
-    warehouse = {item.id: int(item.qty) for item in products}
-    now = datetime.now().strftime(DATE_FORMAT_DEFAULT)
+    """
+    items_array: iterable объектов с полями .id и .qty
+    """
+    with Session() as db:
+        # Текущие остатки (на случай валидации)
+        products = db.query(Storefront).all()
+        warehouse = {item.id: int(item.qty) for item in products}
+        now = datetime.now().strftime(DATE_FORMAT_DEFAULT)
 
-    for item in items_array:
-        old_qty = warehouse[item.id]
-        new_qty = old_qty + int(item.qty)
+        for item in items_array:
+            old_qty = warehouse.get(item.id, 0)
+            new_qty = old_qty + int(item.qty)
 
-        new_supply = Supplies(item_id=item.id, qty=item.qty, add_date=now)
-        db.add(new_supply)
+            new_supply = Supplies(item_id=item.id, qty=item.qty, add_date=now)
+            db.add(new_supply)
 
-        item_db = db.scalars(select(Storefront).where(Storefront.id == item.id)).one()
-        item_db.qty = new_qty
+            item_db = db.scalars(select(Storefront).where(Storefront.id == item.id)).one()
+            item_db.qty = new_qty
 
         db.commit()
-        
+
 
 # Списание товара
 def writeoff(data, writeoff_initiator):
-    db = Session()
-    now = datetime.now().strftime(DATE_FORMAT_DEFAULT)
-    if data.type == 'person':
-        person = data.details.name
-    else: 
-        person = None
-    wo = WriteOff(user_uuid=writeoff_initiator, item_id=data.details.id, qty=data.details.qty, type=data.type, description=person, wo_date=now)
-    db.add(wo)
-    product = db.scalars(select(Storefront).where(Storefront.id==data.details.id)).one()
-    product.qty = product.qty - data.details.qty
-    db.commit()
-    
+    """
+    data:
+      - .type: 'person' | ... (тип списания)
+      - .details: объект с полями .id, .qty, .name (если type == 'person')
+    """
+    with Session() as db:
+        now = datetime.now().strftime(DATE_FORMAT_DEFAULT)
+        person = data.details.name if getattr(data, "type", None) == 'person' else None
+
+        wo = WriteOff(
+            user_uuid=writeoff_initiator,
+            item_id=data.details.id,
+            qty=data.details.qty,
+            type=data.type,
+            description=person,
+            wo_date=now
+        )
+        db.add(wo)
+
+        product = db.scalars(select(Storefront).where(Storefront.id == data.details.id)).one()
+        product.qty = product.qty - data.details.qty
+
+        db.commit()
